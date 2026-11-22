@@ -4,24 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Chris progress log</title>
+<meta name="theme-color" content="#2c2e32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Progress log">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
 <style>
-/* VOICE: a shipped strength-training app – direct, calm, numbers first
-   IDEA: the competition plate rack – red 25s, blue 20s, chalk-white floor
-   PICTURE: the bodyweight curve drawn large on a plate-red band
-   COLOUR and TYPE: plate red dominant, plate blue support, yellow focus accent; Archivo, condensed heavy for figures
-   LAYOUT: tab app – oversigt, træn, programmer, progression; bottom tab bar on phones */
 :root{color-scheme:light dark;
 --bg:light-dark(#f4f3ef,#111214);--card:light-dark(#fff,#1b1d21);--ink:light-dark(#151515,#f1efea);--mute:light-dark(#66645f,#a3a09a);--line:light-dark(#e1dfd9,#2e3035);
---red:light-dark(#d4241c,#a3170f);--redt:light-dark(#c41f17,#ff6d62);--blue:light-dark(#1b4fb3,#7ba3ff);--yel:#f4c430;--ok:light-dark(#1d7a4b,#5fd39a)}
-:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+--red:light-dark(#d4241c,#a3170f);--redt:light-dark(#c41f17,#ff6d62);--blue:light-dark(#1b4fb3,#7ba3ff);--yel:#f4c430;--ok:light-dark(#1d7a4b,#5fd39a);
+--hero:light-dark(#2c2e32,#1f2124);--leaf:#7bd49a}
 *{box-sizing:border-box;min-width:0}
 [hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Archivo,system-ui,sans-serif;overflow-x:clip}
 .band{padding:clamp(24px,4vw,48px) max(5vw,16px)}
 .fig{position:relative;min-height:340px}.fig>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.scroll{overflow-x:auto}
 h1,h2,h3{line-height:1.08;text-wrap:balance;margin:0}
 h1{font-size:clamp(32px,4.4vw,50px);font-weight:850;font-stretch:80%}
 h2{font-size:22px;font-weight:800}h3{font-size:18px;font-weight:750}
@@ -34,7 +34,7 @@ button{font:inherit;cursor:pointer}
 .tabs a{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:10px;color:var(--mute);text-decoration:none;font-weight:650}
 .tabs a[aria-current=page]{background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
 .tabs svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-:root{--hero:light-dark(#2c2e32,#1f2124);--leaf:#7bd49a}
+body.out .tabs{display:none}
 .hero{background:var(--hero);color:#e9e8e4;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.7fr);grid-template-areas:"s f" "w f";column-gap:clamp(18px,3vw,40px);row-gap:12px;padding:16px max(5vw,16px) 18px}
 .hs{grid-area:s}.hfig{grid-area:f;min-height:160px;color:#e9e8e4}.wform{grid-area:w;align-self:end}
 .kick{margin:0 0 4px;opacity:.7;font-size:14px;text-transform:capitalize}
@@ -48,6 +48,7 @@ button{font:inherit;cursor:pointer}
 .wform input[type=date]{flex:1 1 150px}
 .btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:10px;background:var(--red);color:#fff;font-weight:750;border:0;text-decoration:none}
 .btn.light{background:var(--leaf);color:#0f2418}
+.btn:disabled{opacity:.6;cursor:default}
 .ghost{min-height:44px;padding:0 14px;border-radius:10px;border:1.5px dashed var(--line);background:none;color:var(--ink);font-weight:650}
 .ghost.danger{border-style:solid;color:var(--redt)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
@@ -76,13 +77,13 @@ button{font:inherit;cursor:pointer}
 .pick{text-align:left;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:9px 14px;min-height:44px}
 .pick span{display:block;font-size:13px;color:var(--mute)}
 .pick.on{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red)}
-.note{background:color-mix(in srgb,var(--yel) 22%,var(--card));border-radius:12px;padding:12px 16px;margin:0 0 4px}
+.note{background:color-mix(in srgb,var(--yel) 22%,var(--card));border-radius:12px;padding:12px 16px;margin:14px 0 4px}
 .exlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:16px}
 .ex .mute{font-size:14px;display:block;margin-top:4px}
 .sh,.set{display:grid;grid-template-columns:28px minmax(0,1fr) minmax(0,1fr) 44px;gap:8px;align-items:center}
 .sh{font-size:13px;color:var(--mute);margin-top:14px;text-align:center}.sh span:first-child{text-align:left}
 .set{margin-top:6px}.set .n{font-weight:750;color:var(--mute)}
-.set input,.fl input,.exrow input{height:44px;width:100%;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px;padding:0 10px}
+.set input,.fl input,.exrow input,.authcard input{height:44px;width:100%;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px;padding:0 10px}
 .set input{text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
 .set.done input{background:color-mix(in srgb,var(--ok) 14%,var(--card));border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}
 .tick{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--mute);font-weight:800}
@@ -94,12 +95,8 @@ button{font:inherit;cursor:pointer}
 .pgrid{display:grid;grid-template-columns:minmax(0,270px) minmax(0,1fr);gap:20px;margin-top:18px;align-items:start}
 .plist{display:flex;flex-direction:column;gap:8px}
 .fl{display:grid;gap:6px;font-weight:650;font-size:14px}.fl input{font-size:20px;font-weight:750}
-.days{border:0;padding:0;margin:18px 0;display:flex;flex-wrap:wrap;gap:6px}
-.days legend{font-weight:650;font-size:14px;margin-bottom:6px;padding:0}
-.day{min-width:54px;min-height:44px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);text-transform:capitalize;font-weight:650}
-.day.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .exhead,.exrow{display:grid;grid-template-columns:minmax(0,1fr) 68px 76px 148px;gap:8px;align-items:center}
-.exhead{font-size:13px;color:var(--mute);margin-top:6px}
+.exhead{font-size:13px;color:var(--mute);margin-top:18px}
 .exrow{margin-top:8px}.exrow input[data-f=sets],.exrow input[data-f=reps]{text-align:center}
 .acts{display:flex;gap:4px}
 .acts button{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-weight:700}
@@ -120,8 +117,15 @@ button{font:inherit;cursor:pointer}
 table{width:100%;border-collapse:collapse;margin-top:12px;font-variant-numeric:tabular-nums}
 th{font-size:13px;color:var(--mute);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
 td{padding:10px;border-bottom:1px solid var(--line)}
-.demo{font-size:14px;color:var(--mute);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.demo button{background:none;border:1.5px solid var(--line);color:var(--ink);border-radius:10px;min-height:40px;padding:0 12px}
+.acct{font-size:14px;color:var(--mute);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.acct button{background:none;border:1.5px solid var(--line);color:var(--ink);border-radius:10px;min-height:40px;padding:0 12px}
+.auth{min-height:72vh;display:grid;place-items:center;padding:24px 16px}
+.authcard{width:min(400px,100%);display:grid;gap:14px}
+.authcard label{display:grid;gap:6px;font-weight:650;font-size:14px}
+.authcard .row{display:flex;gap:10px;flex-wrap:wrap}.authcard .row>*{flex:1 1 140px}
+.linkbtn{background:none;border:0;color:var(--blue);font-weight:650;padding:6px 0;justify-self:start;min-height:40px}
+#authmsg{margin:0;font-size:15px}
+.loading{min-height:60vh;display:grid;place-items:center;color:var(--mute)}
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,140%);background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 10px 10px 16px;display:flex;gap:14px;align-items:center;transition:transform .25s;z-index:20;max-width:calc(100vw - 24px)}
 #toast.show{transform:translate(-50%,0)}
 #toast button{background:var(--yel);color:#151515;border:0;border-radius:8px;min-height:40px;padding:0 12px;font-weight:750}
@@ -132,16 +136,17 @@ td{padding:10px;border-bottom:1px solid var(--line)}
 @media(max-width:760px){
  .hero{grid-template-columns:minmax(0,1fr);grid-template-areas:"s" "f" "w"}.hfig{min-height:140px}
  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
- .tabs a{flex-direction:column;gap:2px;color:var(--mute);font-size:13px;padding:6px 0;opacity:1}
- .tabs a[aria-current=page]{background:none;color:var(--redt)}
- body{padding-bottom:80px}.savebar{bottom:86px}#toast{bottom:92px}}
+ .tabs a{flex-direction:column;gap:2px;color:var(--mute);font-size:13px;padding:6px 0}
+ .tabs a[aria-current=page]{background:none;box-shadow:none;color:var(--redt)}
+ body:not(.out){padding-bottom:80px}.savebar{bottom:86px}#toast{bottom:92px}}
 @media(max-width:600px){
  .exhead{display:none}.exrow{grid-template-columns:minmax(0,1fr) 60px 68px;padding-bottom:8px;border-bottom:1px solid var(--line)}.acts{grid-column:1/-1;justify-content:flex-end}
  table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;color:var(--mute)}.stack td:empty{display:none}}
 </style>
 <script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js"></script>
 </head>
-<body>
+<body class="out">
 <header class="top">
  <a class="brand" href="#oversigt">Chris progress log</a>
  <nav class="tabs" aria-label="Hovedmenu">
@@ -152,7 +157,24 @@ td{padding:10px;border-bottom:1px solid var(--line)}
  </nav>
 </header>
 
-<section id="heroband" class="hero" aria-label="Kropsvægt">
+<div id="loading" class="loading"><p>Henter dine data…</p></div>
+
+<section id="auth" class="auth" hidden>
+ <form id="authform" class="card authcard" novalidate>
+  <h1 id="authtitle" style="font-size:34px">Log ind</h1>
+  <p class="mute" id="authsub" style="margin:0">Dine træninger, programmer og vejninger gemmes på din konto.</p>
+  <label id="emailwrap">Mail<input id="aemail" type="email" autocomplete="email" inputmode="email" required></label>
+  <label id="pwwrap">Kodeord<input id="apw" type="password" autocomplete="current-password" minlength="8" required></label>
+  <div class="row" id="authbtns">
+   <button class="btn" data-act="login">Log ind</button>
+   <button class="ghost" data-act="signup" type="submit">Opret konto</button>
+  </div>
+  <button class="linkbtn" type="button" id="forgot">Glemt kodeord?</button>
+  <p id="authmsg" role="status" aria-live="polite"></p>
+ </form>
+</section>
+
+<section id="heroband" class="hero" aria-label="Kropsvægt" hidden>
  <div class="hs">
   <p class="kick" id="hdate"></p>
   <h1 id="hline">Kropsvægt</h1>
@@ -167,7 +189,7 @@ td{padding:10px;border-bottom:1px solid var(--line)}
  </form>
 </section>
 
-<main>
+<main id="app" hidden>
  <section id="v-oversigt" class="view band">
   <div class="grid2">
    <div class="card" id="today"></div>
@@ -204,13 +226,19 @@ td{padding:10px;border-bottom:1px solid var(--line)}
   </div>
  </section>
 
- <div class="band" style="padding-top:0"><p class="demo">Demodata: 12 ugers træning (push, pull, ben, push, pull pr. uge) og vejninger er genereret. Det du indtaster gemmes kun i denne browser. <button id="reset">Nulstil demodata</button></p></div>
+ <div class="band" style="padding-top:0"><p class="acct"><span id="who"></span><button id="logout">Log ud</button></p></div>
 </main>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 {
-const KEY='jernlog-demo-v3';
+// ---------- Supabase ----------
+const SUPABASE_URL='https://jzhajrfflfttczssgnne.supabase.co';
+const SUPABASE_KEY='sb_publishable_L1dy35uMa4iPWYVMPI9YDg_d_d014C3'; // offentlig nøgle – data er beskyttet af RLS
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const APP_URL=location.origin+location.pathname;
+
+// ---------- Hjælpere ----------
 const DAYS=['søn','man','tir','ons','tor','fre','lør'];
 const DAYL=['søndag','mandag','tirsdag','onsdag','torsdag','fredag','lørdag'];
 const $=s=>document.querySelector(s);
@@ -222,46 +250,75 @@ const parse=s=>{const[a,b,c]=s.split('-').map(Number);return new Date(a,b-1,c,12
 const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
 const fdate=s=>parse(s).toLocaleDateString('da-DK',{day:'numeric',month:'short'});
 const e1rm=(kg,r)=>r>0?kg*(1+r/30):0;
-const r25=x=>Math.round(x/2.5)*2.5;
-const uid=()=>Math.random().toString(36).slice(2,9);
-const monFirst=(a,b)=>(a+6)%7-(b+6)%7;
-const TODAY=new Date();TODAY.setHours(12,0,0,0);
+const uid=()=>crypto.randomUUID();
+const mkToday=()=>{const t=new Date();t.setHours(12,0,0,0);return t};
+let TODAY=mkToday();
 
-function seed(){
- let s=11;const rnd=()=>(s=s*16807%2147483647)/2147483647;
- const weights=[];
- for(let i=84;i>=0;i-=2+Math.floor(rnd()*2))weights.push({d:iso(addDays(TODAY,-i)),kg:+(86.6-(84-i)/84*3.5+(rnd()-.5)*.9).toFixed(1)});
- const P=(name,ex)=>({id:uid(),name,ex:ex.map(([n,a,r])=>({name:n,sets:a,reps:String(r)}))});
- const programs=[
-  P('Push',[['Bænkpres',4,6],['Incline bænk (Smith)',3,8],['Incline dumbbell',3,10],['Skulderpres',3,8],['Triceps pushdown',3,12]]),
-  P('Pull',[['Dødløft',3,5],['Lat pulldown',4,8],['Kabelroning',3,10],['Biceps curl',3,12]]),
-  P('Ben',[['Squat',4,6],['Rumænsk dødløft',3,8],['Benpres',3,10],['Lægløft',4,12]])];
- const B={'Bænkpres':[72.5,85,6],'Skulderpres':[42.5,50,8],'Incline bænk (Smith)':[60,72.5,8],'Incline dumbbell':[24,30,10],'Triceps pushdown':[25,32.5,12],'Dødløft':[125,150,5],'Lat pulldown':[55,70,8],'Kabelroning':[50,62.5,10],'Biceps curl':[12.5,17.5,12],'Squat':[95,117.5,6],'Rumænsk dødløft':[80,100,8],'Benpres':[140,180,10],'Lægløft':[60,80,12]};
- const plan={1:0,2:1,4:2,5:0,6:1},sessions=[];
- for(let i=84;i>=1;i--){const d=addDays(TODAY,-i),p=programs[plan[d.getDay()]];if(!p||rnd()<.12)continue;const f=(84-i)/84;
-  sessions.push({id:uid(),d:iso(d),pid:p.id,prog:p.name,ex:p.ex.map(e=>{const[b0,b1,rp]=B[e.name];const kg=r25(b0+(b1-b0)*f+(rnd()-.6)*2.5);return{name:e.name,sets:Array.from({length:e.sets},(_,j)=>({kg,reps:Math.max(1,rp-(j>=2&&rnd()<.45?1:0))}))}})})}
- return{weights,programs,sessions,fav:['Bænkpres','Incline bænk (Smith)','Incline dumbbell'],ui:{}};
+// ---------- Tilstand ----------
+const S={programs:[],sessions:[],weights:[],fav:[],ui:{}};
+try{S.ui=JSON.parse(localStorage.getItem('cpl-ui'))||{}}catch(e){}
+const saveUi=()=>{try{localStorage.setItem('cpl-ui',JSON.stringify(S.ui))}catch(e){}};
+let user=null,booted=false;
+
+const STARTER=[
+ ['Push',[['Bænkpres',4,'6'],['Incline bænk (Smith)',3,'8'],['Incline dumbbell',3,'10'],['Skulderpres',3,'8'],['Triceps pushdown',3,'12']]],
+ ['Pull',[['Dødløft',3,'5'],['Lat pulldown',4,'8'],['Kabelroning',3,'10'],['Biceps curl',3,'12']]],
+ ['Ben',[['Squat',4,'6'],['Rumænsk dødløft',3,'8'],['Benpres',3,'10'],['Lægløft',4,'12']]]];
+const STARTER_FAV=['Bænkpres','Incline bænk (Smith)','Incline dumbbell'];
+
+let tt;
+function toast(m,undo){const t=$('#toast');t.innerHTML=`<span>${esc(m)}</span>${undo?'<button id="undo">Fortryd</button>':''}`;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),5500);if(undo)$('#undo').onclick=()=>{undo();t.classList.remove('show')}}
+function fail(err){console.error(err);toast('Kunne ikke gemme. Tjek forbindelsen og prøv igen.')}
+
+// ---------- Database ----------
+async function loadAll(){
+ const [p,s,w,st]=await Promise.all([
+  sb.from('programs').select('id,name,exercises,position').order('position'),
+  sb.from('sessions').select('id,date,program_id,program_name,exercises,created_at').order('date').order('created_at'),
+  sb.from('weights').select('date,kg').order('date'),
+  sb.from('settings').select('favorites').maybeSingle()]);
+ for(const r of [p,s,w,st])if(r.error)throw r.error;
+ S.programs=p.data.map(r=>({id:r.id,name:r.name,ex:r.exercises||[]}));
+ S.sessions=s.data.map(r=>({id:r.id,d:r.date,pid:r.program_id,prog:r.program_name,ex:r.exercises||[]}));
+ S.weights=w.data.map(r=>({d:r.date,kg:+r.kg}));
+ S.fav=st.data?st.data.favorites:null;
+ if(!S.programs.length&&!S.sessions.length&&S.fav===null){
+  S.programs=STARTER.map(([name,ex])=>({id:uid(),name,ex:ex.map(([n,a,r])=>({name:n,sets:a,reps:r}))}));
+  S.fav=STARTER_FAV.slice();
+  const a=await sb.from('programs').insert(S.programs.map((q,i)=>({id:q.id,name:q.name,exercises:q.ex,position:i})));
+  const b=await sb.from('settings').upsert({favorites:S.fav},{onConflict:'user_id'});
+  if(a.error||b.error)fail(a.error||b.error);
+ }
+ S.fav=S.fav||[];
+ knownProgs=new Set(S.programs.map(q=>q.id));
 }
-let S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
-if(!S||!S.programs)S=seed();
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+let knownProgs=new Set(),progTimer;
+function pushPrograms(){clearTimeout(progTimer);progTimer=setTimeout(async()=>{
+ const rows=S.programs.map((q,i)=>({id:q.id,name:q.name,exercises:q.ex,position:i,updated_at:new Date().toISOString()}));
+ const gone=[...knownProgs].filter(id=>!S.programs.some(q=>q.id===id));
+ if(rows.length){const r=await sb.from('programs').upsert(rows);if(r.error)return fail(r.error)}
+ if(gone.length){const r=await sb.from('programs').delete().in('id',gone);if(r.error)return fail(r.error)}
+ knownProgs=new Set(S.programs.map(q=>q.id));flash();
+},500)}
+const pushFav=async()=>{const r=await sb.from('settings').upsert({favorites:S.fav,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(r.error)fail(r.error)};
 
-const hist=name=>S.sessions.filter(s=>s.ex.some(e=>e.name===name&&e.sets.length)).map(s=>{const e=s.ex.find(x=>x.name===name);const top=e.sets.reduce((a,b)=>b.kg>a.kg||(b.kg===a.kg&&b.reps>a.reps)?b:a);return{d:s.d,t:parse(s.d).getTime(),sets:e.sets,top,rm:Math.max(...e.sets.map(x=>e1rm(x.kg,x.reps)))}}).sort((a,b)=>a.t-b.t);
+// ---------- Udledte data ----------
+const hist=name=>S.sessions.filter(s=>s.ex.some(e=>e.name===name&&e.sets.length)).map(s=>{const e=s.ex.find(x=>x.name===name&&x.sets.length);const top=e.sets.reduce((a,b)=>b.kg>a.kg||(b.kg===a.kg&&b.reps>a.reps)?b:a);return{d:s.d,t:parse(s.d).getTime(),sets:e.sets,top,rm:Math.max(...e.sets.map(x=>e1rm(x.kg,x.reps)))}}).sort((a,b)=>a.t-b.t);
 const allEx=()=>[...new Set([...S.programs.flatMap(p=>p.ex.map(e=>e.name.trim())),...S.sessions.flatMap(s=>s.ex.map(e=>e.name))])].filter(Boolean);
 const sessOn=d=>S.sessions.filter(s=>s.d===iso(d));
 const lastOf=p=>S.sessions.filter(s=>s.pid?s.pid===p.id:s.prog===p.name).at(-1);
 const ago=d=>{const n=Math.round((TODAY-parse(d))/864e5);return n<=0?'i dag':n===1?'i går':n+' dage siden'};
 const lastTxt=p=>{const l=lastOf(p);return l?'sidst '+fdate(l.d)+' ('+ago(l.d)+')':'ikke kørt endnu'};
 function suggest(){
+ if(!S.programs.length)return{p:null,why:'Opret et program under Programmer for at komme i gang'};
+ if(!S.sessions.length)return{p:S.programs[0],why:'Ingen træninger logget endnu. Vælg et program og log dine sæt'};
  const s=sessOn(addDays(TODAY,-7))[0],p=s&&S.programs.find(q=>q.id===s.pid||q.name===s.prog),dn=DAYL[TODAY.getDay()];
  if(p)return{p,why:`Sidste ${dn} kørte du ${p.name}`};
  const by=S.programs.map(q=>({q,l:lastOf(q)})).sort((a,b)=>(a.l?.d||'')<(b.l?.d||'')?-1:1)[0];
- return{p:by?.q,why:`Sidste ${dn} var hviledag`+(by?` · længst siden: ${by.q.name}`+(by.l?` (${ago(by.l.d)})`:''):'')};
+ return{p:by.q,why:`Sidste ${dn} var hviledag · længst siden: ${by.q.name}`+(by.l?` (${ago(by.l.d)})`:' (ikke kørt endnu)')};
 }
 
-let tt;
-function toast(m,undo){const t=$('#toast');t.innerHTML=`<span>${esc(m)}</span>${undo?'<button id="undo">Fortryd</button>':''}`;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),5500);if(undo)$('#undo').onclick=()=>{undo();t.classList.remove('show')}}
-
+// ---------- Kurver ----------
 function niceStep(r){const p=10**Math.floor(Math.log10(r)),m=r/p;return(m<1.5?1:m<3?2:m<7?5:10)*p}
 function chart(svg,series,o={}){
  const draw=()=>{
@@ -269,21 +326,22 @@ function chart(svg,series,o={}){
   const sm=W<520,sp=o.spark;
   const pd=sp?{l:4,r:6,t:6,b:6}:{l:sm?38:48,r:sm?10:16,t:16,b:30};
   const all=series.flatMap(s=>s.pts);
-  if(!all.length){svg.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="14" style="fill:currentColor;opacity:.65">Ingen data endnu</text>`;return}
-  let x0=Math.min(...all.map(p=>p.t)),x1=Math.max(...all.map(p=>p.t));if(x1===x0){x0-=864e5;x1+=864e5}
+  if(!all.length){svg.innerHTML=`<text x="${W/2}" y="${H/2+5}" text-anchor="middle" font-size="14" style="fill:currentColor;opacity:.65">Ingen data endnu</text>`;return}
+  let x0=Math.min(...all.map(p=>p.t)),x1=Math.max(...all.map(p=>p.t));if(x1===x0){x0-=3*864e5;x1+=3*864e5}
   let y0=Math.min(...all.map(p=>p.y)),y1=Math.max(...all.map(p=>p.y));const rg=(y1-y0)||Math.abs(y1)*.05||1;y0-=rg*.14;y1+=rg*.14;
   const X=t=>pd.l+(t-x0)/(x1-x0)*(W-pd.l-pd.r),Y=v=>pd.t+(1-(v-y0)/(y1-y0))*(H-pd.t-pd.b);
   let g='';
   if(!sp){
    const st=niceStep((y1-y0)/(sm||H<220?3:5));
    for(let v=Math.ceil(y0/st)*st;v<=y1;v+=st){const y=Y(v).toFixed(1);g+=`<line x1="${pd.l}" x2="${W-pd.r}" y1="${y}" y2="${y}" style="stroke:currentColor;opacity:.16"/><text x="${pd.l-8}" y="${+y+4}" text-anchor="end" font-size="12" style="fill:currentColor;opacity:.75">${nf(v)}</text>`}
-   const m=new Date(x0);m.setDate(1);m.setMonth(m.getMonth()+1);
-   for(let k=0;m.getTime()<=x1;m.setMonth(m.getMonth()+1),k++){if(sm&&k%2)continue;const x=X(m.getTime()).toFixed(1);g+=`<text x="${x}" y="${H-8}" text-anchor="middle" font-size="12" style="fill:currentColor;opacity:.75">${m.toLocaleDateString('da-DK',{month:'short'})}</text><line x1="${x}" x2="${x}" y1="${H-pd.b}" y2="${H-pd.b+5}" style="stroke:currentColor;opacity:.4"/>`}
+   const span=x1-x0,m=new Date(x0);
+   if(span<40*864e5){m.setHours(12,0,0,0);const step=Math.max(1,Math.ceil(span/864e5/(sm?4:7)));for(;m.getTime()<=x1;m.setDate(m.getDate()+step)){const x=X(m.getTime()).toFixed(1);g+=`<text x="${x}" y="${H-8}" text-anchor="middle" font-size="12" style="fill:currentColor;opacity:.75">${fdate(iso(m))}</text>`}}
+   else{m.setDate(1);m.setMonth(m.getMonth()+1);for(let k=0;m.getTime()<=x1;m.setMonth(m.getMonth()+1),k++){if(sm&&k%2)continue;const x=X(m.getTime()).toFixed(1);g+=`<text x="${x}" y="${H-8}" text-anchor="middle" font-size="12" style="fill:currentColor;opacity:.75">${m.toLocaleDateString('da-DK',{month:'short'})}</text><line x1="${x}" x2="${x}" y1="${H-pd.b}" y2="${H-pd.b+5}" style="stroke:currentColor;opacity:.4"/>`}}
   }
   const anim=o.anim&&!svg._done;svg._done=true;
   series.forEach((s,i)=>{if(!s.pts.length)return;
    const d=s.pts.map((p,j)=>(j?'L':'M')+X(p.t).toFixed(1)+','+Y(p.y).toFixed(1)).join('');
-   if(s.area){const gid=svg.id+'g'+i;g+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:${s.color};stop-opacity:.3"/><stop offset="1" style="stop-color:${s.color};stop-opacity:0"/></linearGradient></defs><path d="${d}L${X(s.pts.at(-1).t).toFixed(1)},${H-pd.b}L${X(s.pts[0].t).toFixed(1)},${H-pd.b}Z" fill="url(#${gid})"/>`}
+   if(s.area&&s.pts.length>1){const gid=svg.id+'g'+i;g+=`<defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:${s.color};stop-opacity:.3"/><stop offset="1" style="stop-color:${s.color};stop-opacity:0"/></linearGradient></defs><path d="${d}L${X(s.pts.at(-1).t).toFixed(1)},${H-pd.b}L${X(s.pts[0].t).toFixed(1)},${H-pd.b}Z" fill="url(#${gid})"/>`}
    g+=`<path d="${d}" ${anim&&i===0?'pathLength="1" class="ln"':''} style="fill:none;stroke:${s.color};stroke-width:${s.w||2.5}px;stroke-linejoin:round;stroke-linecap:round${s.dash?';stroke-dasharray:5 5':''}"/>`;
    if(s.dots)g+=s.pts.map(p=>`<circle cx="${X(p.t).toFixed(1)}" cy="${Y(p.y).toFixed(1)}" r="2.6" style="fill:${s.color}"/>`).join('');
    const L=s.pts.at(-1);g+=`<circle cx="${X(L.t)}" cy="${Y(L.y)}" r="${sp?3.5:5.5}" style="fill:${s.color};stroke:${o.ring||'var(--card)'};stroke-width:2px"/>`});
@@ -291,6 +349,7 @@ function chart(svg,series,o={}){
   svg.innerHTML=g;
   if(sp)return;
   const P=series[0].pts,hv=svg.querySelector('.hov'),hit=svg.querySelector('.hit');
+  if(!P.length)return;
   hit.onpointermove=ev=>{const r=svg.getBoundingClientRect(),mx=ev.clientX-r.left;let b=P[0];for(const p of P)if(Math.abs(X(p.t)-mx)<Math.abs(X(b.t)-mx))b=p;
    const x=X(b.t),y=Y(b.y),ln=hv.querySelector('line'),c=hv.querySelector('circle'),rc=hv.querySelector('rect'),tx=hv.querySelector('text');
    hv.style.display='';ln.setAttribute('x1',x);ln.setAttribute('x2',x);c.setAttribute('cx',x);c.setAttribute('cy',y);
@@ -302,13 +361,15 @@ function chart(svg,series,o={}){
  if(svg._ro)svg._ro.disconnect();svg._ro=new ResizeObserver(draw);svg._ro.observe(svg);draw();
 }
 
+// ---------- Visninger ----------
 function rHero(){
  const W=S.weights.slice().sort((a,b)=>a.d<b.d?-1:1),cur=W.at(-1),first=W[0];
  $('#hdate').textContent=TODAY.toLocaleDateString('da-DK',{weekday:'long',day:'numeric',month:'long'});
- if(cur){const diff=cur.kg-first.kg,wk=Math.max(1,Math.round((parse(cur.d)-parse(first.d))/6048e5)),ago=W.filter(w=>parse(w.d)<=addDays(TODAY,-28)).at(-1)||first;
-  $('#hline').textContent=`${diff<0?'Ned':'Op'} ${nf(Math.abs(diff))} kg på ${wk} uger`;$('#wnow').textContent=nf(cur.kg);
-  $('#wdelta').textContent=`${sign(cur.kg-ago.kg)} kg de seneste 4 uger · sidst vejet ${fdate(cur.d)}`}
- else{$('#hline').textContent='Kropsvægt';$('#wnow').textContent='–';$('#wdelta').textContent='Log din første vejning herunder.'}
+ if(W.length>1){const diff=cur.kg-first.kg,days=Math.round((parse(cur.d)-parse(first.d))/864e5),span=days<14?days+' dage':Math.round(days/7)+' uger',ago4=W.filter(w=>parse(w.d)<=addDays(TODAY,-28)).at(-1)||first;
+  $('#hline').textContent=Math.abs(diff)<0.05?`Uændret på ${span}`:`${diff<0?'Ned':'Op'} ${nf(Math.abs(diff))} kg på ${span}`;
+  $('#wdelta').textContent=`${sign(cur.kg-ago4.kg)} kg ${ago4===first?'siden første vejning':'de seneste 4 uger'} · sidst vejet ${fdate(cur.d)}`}
+ else{$('#hline').textContent='Kropsvægt';$('#wdelta').textContent=cur?`Vejet ${fdate(cur.d)} · kurven kommer ved næste vejning`:'Log din første vejning herunder.'}
+ $('#wnow').textContent=cur?nf(cur.kg):'–';
  chart($('#wchart'),[{pts:W.map(w=>({t:parse(w.d).getTime(),y:w.kg})),color:'var(--leaf)',area:true,w:2.5}],{ring:'var(--hero)',anim:true,fmt:p=>nf(p.y)+' kg'});
 }
 
@@ -319,8 +380,8 @@ function rOversigt(){
  const rec=[];for(const s of S.sessions.slice().reverse()){for(const e of s.ex)if(e.sets.length)rec.push({s,e});if(rec.length>=6)break}
  $('#recent').innerHTML=rec.slice(0,6).map(({s,e})=>{const h=hist(e.name),i=h.findIndex(x=>x.d===s.d),top=h[i].top,prev=h[i-1],dl=prev?top.kg-prev.top.kg:0;
   return`<li><div><b>${esc(e.name)}</b><span class="mute">${fdate(s.d)} · ${esc(s.prog)}</span></div><div class="num">${nf(top.kg)} kg × ${top.reps}</div><span class="chip ${dl>0?'up':dl<0?'down':''}">${prev?(dl?sign(dl)+' kg':'samme'):'ny'}</span></li>`}).join('')||'<li class="mute">Ingen træninger logget endnu.</li>';
- $('#favs').innerHTML=S.fav.map((n,i)=>{const h=hist(n),L=h.at(-1),F=h[0],pct=L&&F?(L.rm-F.rm)/F.rm*100:0;
-  return`<a class="card spark" href="#progression" data-ex="${esc(n)}"><div class="row"><b>${esc(n)}</b><span class="chip ${pct>=0?'up':'down'}">${pct>=0?'+':'−'}${nf(Math.abs(pct),0)} %</span></div><div class="num big2">${L?nf(L.rm,0):'–'}<small> kg est. 1RM</small></div><div class="fig sm"><svg id="sp${i}" aria-hidden="true"></svg></div></a>`}).join('')||'<p class="mute">Markér øvelser med ☆ under Progression for at vise dem her.</p>';
+ $('#favs').innerHTML=S.fav.map((n,i)=>{const h=hist(n),L=h.at(-1),F=h[0],pct=L&&F&&F.rm?(L.rm-F.rm)/F.rm*100:0;
+  return`<a class="card spark" href="#progression" data-ex="${esc(n)}"><div class="row"><b>${esc(n)}</b>${h.length>1?`<span class="chip ${pct>=0?'up':'down'}">${pct>=0?'+':'−'}${nf(Math.abs(pct),0)} %</span>`:''}</div><div class="num big2">${L?nf(L.rm,0):'–'}<small> kg est. 1RM</small></div><div class="fig sm"><svg id="sp${i}" aria-hidden="true"></svg></div></a>`}).join('')||'<p class="mute">Markér øvelser med ☆ under Progression for at vise dem her.</p>';
  S.fav.forEach((n,i)=>chart($('#sp'+i),[{pts:hist(n).map(h=>({t:h.t,y:h.rm})),color:'var(--blue)',area:true,w:2}],{spark:true}));
 }
 
@@ -331,11 +392,11 @@ function buildDraft(p){draft={pid:p.id,name:p.name,ex:p.ex.filter(e=>e.name.trim
 function updProgress(){if(!draft)return;const all=draft.ex.flatMap(e=>e.sets),d=all.filter(s=>s.done).length;$('#sbtxt').textContent=`${d} af ${all.length} sæt udført`;$('#sbm').style.width=(all.length?d/all.length*100:0)+'%'}
 function rTraen(){
  const sg=suggest();
- if(S.ui.pday!==iso(TODAY)||!S.programs.some(p=>p.id===S.ui.pid)){S.ui.pid=sg.p?.id;S.ui.pday=iso(TODAY)}
+ if(S.ui.pday!==iso(TODAY)||!S.programs.some(p=>p.id===S.ui.pid)){S.ui.pid=sg.p?.id;S.ui.pday=iso(TODAY);saveUi()}
  const p=S.programs.find(q=>q.id===S.ui.pid);
  if(p&&(!draft||draft.pid!==p.id))buildDraft(p);
- $('#restnote').hidden=!sg.p;$('#restnote').textContent=`${sg.why}. ${sg.p?sg.p.name+' er foreslået, men du kan frit vælge et andet program.':''}`;
- $('#progpick').innerHTML=S.programs.map(q=>`<button class="pick ${q.id===S.ui.pid?'on':''}" data-pid="${q.id}" aria-pressed="${q.id===S.ui.pid}"><b>${esc(q.name)}</b><span>${lastTxt(q)}</span></button>`).join('');
+ $('#restnote').hidden=false;$('#restnote').textContent=sg.why+'.'+(sg.p&&S.sessions.length?` ${sg.p.name} er foreslået, men du kan frit vælge et andet program.`:'');
+ $('#progpick').innerHTML=S.programs.map(q=>`<button class="pick ${q.id===S.ui.pid?'on':''}" data-pid="${q.id}" aria-pressed="${q.id===S.ui.pid}"><b>${esc(q.name)||'Uden navn'}</b><span>${lastTxt(q)}</span></button>`).join('');
  if(!p){$('#log').innerHTML='<p class="mute">Opret et program under Programmer først.</p>';$('#sbtxt').textContent='';return}
  $('#log').innerHTML=draft.ex.map((e,i)=>`<article class="card ex"><h3>${esc(e.name)}</h3><span class="mute">Mål ${esc(e.target)} · Sidst: ${esc(e.last)}</span>
   <div class="sh"><span>Sæt</span><span>kg</span><span>reps</span><span></span></div>
@@ -350,7 +411,7 @@ function rProg(){
  if(!curProg())S.ui.edit=S.programs[0]?.id;
  rPlist();const p=curProg();
  $('#exnames').innerHTML=allEx().map(n=>`<option value="${esc(n)}">`).join('');
- if(!p){$('#editor').innerHTML='<p class="mute">Ingen programmer endnu. Opret et nyt til venstre.</p>';return}
+ if(!p){$('#editor').innerHTML='<p class="mute">Ingen programmer endnu. Opret et nyt.</p>';return}
  $('#editor').innerHTML=`<label class="fl">Programnavn<input id="pname" value="${esc(p.name)}" autocomplete="off"></label>
  <div class="exhead"><span>Øvelse</span><span style="text-align:center">Sæt</span><span style="text-align:center">Reps</span><span></span></div>
  ${p.ex.map((e,i)=>`<div class="exrow"><input aria-label="Øvelse ${i+1}" placeholder="Øvelse" data-f="name" data-i="${i}" value="${esc(e.name)}" list="exnames" autocomplete="off"><input aria-label="Antal sæt" inputmode="numeric" data-f="sets" data-i="${i}" value="${e.sets}"><input aria-label="Reps" placeholder="8-10" data-f="reps" data-i="${i}" value="${esc(e.reps)}"><div class="acts"><button data-mv="${i},-1" aria-label="Flyt op" ${i?'':'disabled'}>↑</button><button data-mv="${i},1" aria-label="Flyt ned" ${i<p.ex.length-1?'':'disabled'}>↓</button><button data-del="${i}" aria-label="Fjern ${esc(e.name)}">✕</button></div></div>`).join('')}
@@ -362,17 +423,18 @@ function rProgr(){
  const names=allEx();if(!names.includes(S.ui.ex))S.ui.ex=S.fav[0]||names[0];
  const n=S.ui.ex;
  $('#expick').innerHTML=names.map(x=>`<button class="tag ${x===n?'on':''}" data-ex="${esc(x)}">${S.fav.includes(x)?'★ ':''}${esc(x)}</button>`).join('');
- if(!n){$('#extitle').textContent='Ingen øvelser endnu';return}
+ if(!n){$('#extitle').textContent='Ingen øvelser endnu';$('#exstats').innerHTML='';$('#extable').innerHTML='';chart($('#exchart'),[{pts:[]}]);return}
  const h=hist(n),L=h.at(-1),F=h[0],best=h.reduce((a,b)=>!a||b.top.kg>a.top.kg?b:a,null);
  $('#extitle').textContent=n;const fav=S.fav.includes(n);
  $('#favbtn').textContent=fav?'★ Vises på forsiden':'☆ Vis på forsiden';$('#favbtn').setAttribute('aria-pressed',fav);
- $('#exstats').innerHTML=h.length?[[nf(L.rm,1)+' kg','Estimeret 1RM nu'],[(L.rm>=F.rm?'+':'−')+nf(Math.abs((L.rm-F.rm)/F.rm*100),0)+' %','Siden '+fdate(F.d)],[nf(best.top.kg)+' × '+best.top.reps,'Tungeste sæt, '+fdate(best.d)],[h.length,'Træninger logget']].map(([a,b])=>`<div class="stat"><b>${a}</b><span>${b}</span></div>`).join(''):'<p class="mute">Ingen sæt logget for denne øvelse endnu.</p>';
+ $('#exstats').innerHTML=h.length?[[nf(L.rm,1)+' kg','Estimeret 1RM nu'],[h.length>1&&F.rm?(L.rm>=F.rm?'+':'−')+nf(Math.abs((L.rm-F.rm)/F.rm*100),0)+' %':'–','Siden '+fdate(F.d)],[nf(best.top.kg)+' × '+best.top.reps,'Tungeste sæt, '+fdate(best.d)],[h.length,'Træninger logget']].map(([a,b])=>`<div class="stat"><b>${a}</b><span>${b}</span></div>`).join(''):'<p class="mute">Ingen sæt logget for denne øvelse endnu.</p>';
  chart($('#exchart'),[{pts:h.map(x=>({t:x.t,y:x.rm})),color:'var(--blue)',area:true},{pts:h.map(x=>({t:x.t,y:x.top.kg})),color:'var(--red)',dots:true,w:2,dash:true}],{fmt:p=>nf(p.y)+' kg est. 1RM'});
  $('#extable').innerHTML=h.length?`<table class="stack"><thead><tr><th>Dato</th><th>Sæt (kg × reps)</th><th class="r">Tungeste</th><th class="r">Est. 1RM</th></tr></thead><tbody>${h.slice().reverse().slice(0,10).map(x=>`<tr><td class="nw">${fdate(x.d)}</td><td>${x.sets.map(s=>nf(s.kg)+'×'+s.reps).join(', ')}</td><td class="r nw">${nf(x.top.kg)} kg</td><td class="r nw">${nf(x.rm)} kg</td></tr>`).join('')}</tbody></table>`:'';
 }
 
 const VIEWS={oversigt:rOversigt,traen:rTraen,programmer:rProg,progression:rProgr};
 function render(){
+ if(!booted)return;
  const v=VIEWS[location.hash.slice(1)]?location.hash.slice(1):'oversigt';
  document.querySelectorAll('.view').forEach(el=>{el.hidden=el.id!=='v-'+v});
  document.querySelectorAll('.tabs a').forEach(a=>a.setAttribute('aria-current',a.getAttribute('href')==='#'+v?'page':'false'));
@@ -380,18 +442,23 @@ function render(){
  VIEWS[v]();
 }
 addEventListener('hashchange',()=>{render();scrollTo(0,0)});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&iso(mkToday())!==iso(TODAY)){TODAY=mkToday();$('#wdate').value=iso(TODAY);$('#wdate').max=iso(TODAY);draft=null;render()}});
 
+// ---------- Handlinger ----------
 $('#wdate').value=iso(TODAY);$('#wdate').max=iso(TODAY);
-$('#wform').onsubmit=e=>{e.preventDefault();const kg=parseFloat($('#win').value.replace(',','.'));
+$('#wform').onsubmit=async e=>{e.preventDefault();const kg=parseFloat($('#win').value.replace(',','.'));
  if(!(kg>25&&kg<350)){toast('Skriv en vægt i kg, fx 82,4');return}
- const d=$('#wdate').value||iso(TODAY),prev=JSON.stringify(S.weights);
- S.weights=S.weights.filter(w=>w.d!==d);S.weights.push({d,kg:+kg.toFixed(1)});S.weights.sort((a,b)=>a.d<b.d?-1:1);save();$('#win').value='';render();
- toast(`${nf(kg)} kg gemt for ${fdate(d)}`,()=>{S.weights=JSON.parse(prev);save();render()})};
+ const d=$('#wdate').value||iso(TODAY),old=S.weights.find(w=>w.d===d),val=+kg.toFixed(1);
+ const r=await sb.from('weights').upsert({date:d,kg:val},{onConflict:'user_id,date'});if(r.error)return fail(r.error);
+ S.weights=S.weights.filter(w=>w.d!==d);S.weights.push({d,kg:val});S.weights.sort((a,b)=>a.d<b.d?-1:1);$('#win').value='';render();
+ toast(`${nf(val)} kg gemt for ${fdate(d)}`,async()=>{
+  const u=old?await sb.from('weights').upsert({date:d,kg:old.kg},{onConflict:'user_id,date'}):await sb.from('weights').delete().eq('date',d);
+  if(u.error)return fail(u.error);S.weights=S.weights.filter(w=>w.d!==d);if(old){S.weights.push(old);S.weights.sort((a,b)=>a.d<b.d?-1:1)}render()})};
 
-document.addEventListener('click',e=>{const a=e.target.closest('[data-ex]');if(!a)return;S.ui.ex=a.dataset.ex;save();if(location.hash==='#progression'){e.preventDefault();rProgr()}});
-$('#favbtn').onclick=()=>{const n=S.ui.ex;if(!n)return;if(S.fav.includes(n))S.fav=S.fav.filter(x=>x!==n);else{if(S.fav.length>=4){toast('Højst 4 øvelser på forsiden');return}S.fav.push(n)}save();rProgr()};
+document.addEventListener('click',e=>{const a=e.target.closest('[data-ex]');if(!a)return;S.ui.ex=a.dataset.ex;saveUi();if(location.hash==='#progression'){e.preventDefault();rProgr()}});
+$('#favbtn').onclick=()=>{const n=S.ui.ex;if(!n)return;if(S.fav.includes(n))S.fav=S.fav.filter(x=>x!==n);else{if(S.fav.length>=4){toast('Højst 4 øvelser på forsiden');return}S.fav.push(n)}pushFav();rProgr()};
 
-$('#progpick').onclick=e=>{const b=e.target.closest('[data-pid]');if(!b)return;S.ui.pid=b.dataset.pid;S.ui.pday=iso(TODAY);draft=null;save();rTraen()};
+$('#progpick').onclick=e=>{const b=e.target.closest('[data-pid]');if(!b)return;S.ui.pid=b.dataset.pid;S.ui.pday=iso(TODAY);saveUi();draft=null;rTraen()};
 $('#log').addEventListener('input',e=>{const t=e.target;if(t.dataset.k&&draft)draft.ex[t.dataset.i].sets[t.dataset.j][t.dataset.k]=t.value});
 $('#log').addEventListener('click',e=>{
  const t=e.target.closest('[data-tick]');
@@ -399,40 +466,91 @@ $('#log').addEventListener('click',e=>{
  const a=e.target.closest('[data-addset]');
  if(a){const ex=draft.ex[a.dataset.addset],l=ex.sets.at(-1)||{kg:'',reps:''};ex.sets.push({kg:l.kg,reps:l.reps,done:false});rTraen();
   const ins=document.querySelectorAll(`[data-i="${a.dataset.addset}"][data-k="kg"]`);ins[ins.length-1]?.focus()}});
-$('#savews').onclick=()=>{
+$('#savews').onclick=async()=>{
  if(!draft)return;
  const ex=draft.ex.map(e=>({name:e.name,sets:e.sets.map(s=>({kg:parseFloat(String(s.kg).replace(',','.')),reps:parseInt(s.reps)})).filter(s=>!isNaN(s.kg)&&s.kg>=0&&s.reps>0)})).filter(e=>e.sets.length);
  if(!ex.length){toast('Udfyld mindst ét sæt med kg og reps');return}
  const prs=ex.filter(e=>{const h=hist(e.name);return h.length&&Math.max(...e.sets.map(s=>e1rm(s.kg,s.reps)))>Math.max(...h.map(x=>x.rm))}).map(e=>e.name);
- const sess={id:uid(),d:iso(TODAY),pid:draft.pid,prog:draft.name,ex};S.sessions.push(sess);save();draft=null;
- location.hash='oversigt';
- toast(prs.length?`Træning gemt. Ny rekord i ${prs.join(', ')}`:'Træning gemt',()=>{S.sessions=S.sessions.filter(s=>s.id!==sess.id);save();render()})};
+ const sess={id:uid(),d:iso(TODAY),pid:draft.pid,prog:draft.name,ex};
+ $('#savews').disabled=true;
+ const r=await sb.from('sessions').insert({id:sess.id,date:sess.d,program_id:sess.pid,program_name:sess.prog,exercises:ex});
+ $('#savews').disabled=false;
+ if(r.error)return fail(r.error);
+ S.sessions.push(sess);draft=null;location.hash='oversigt';
+ toast(prs.length?`Træning gemt. Ny rekord i ${prs.join(', ')}`:'Træning gemt',async()=>{const u=await sb.from('sessions').delete().eq('id',sess.id);if(u.error)return fail(u.error);S.sessions=S.sessions.filter(s=>s.id!==sess.id);render()})};
 
 const flash=()=>{const s=$('#saved');if(s)s.textContent='Gemt '+new Date().toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'})};
 $('#plist').onclick=e=>{
- const b=e.target.closest('[data-edit]');if(b){S.ui.edit=b.dataset.edit;save();rProg();return}
- if(e.target.closest('#newprog')){const p={id:uid(),name:'Nyt program',ex:[{name:'',sets:3,reps:'10'}]};S.programs.push(p);S.ui.edit=p.id;save();rProg();$('#pname').select()}};
+ const b=e.target.closest('[data-edit]');if(b){S.ui.edit=b.dataset.edit;saveUi();rProg();return}
+ if(e.target.closest('#newprog')){const p={id:uid(),name:'Nyt program',ex:[{name:'',sets:3,reps:'10'}]};S.programs.push(p);S.ui.edit=p.id;pushPrograms();rProg();$('#pname').select()}};
 $('#editor').addEventListener('input',e=>{
  const p=curProg(),t=e.target;if(!p)return;
  if(t.id==='pname')p.name=t.value;
  else if(t.dataset.f){const x=p.ex[t.dataset.i];x[t.dataset.f]=t.dataset.f==='sets'?Math.min(12,Math.max(1,parseInt(t.value)||1)):t.value}
  else return;
- draft=null;save();flash();rPlist()});
+ draft=null;pushPrograms();rPlist()});
 $('#editor').addEventListener('click',e=>{
  const p=curProg(),t=e.target.closest('button');if(!p||!t)return;
- const snap=JSON.stringify(S.programs),pid=p.id,undo=()=>{S.programs=JSON.parse(snap);S.ui.edit=pid;draft=null;save();rProg()};
- if(false){}
- else if(t.dataset.mv){const[i,dir]=t.dataset.mv.split(',').map(Number);const[x]=p.ex.splice(i,1);p.ex.splice(i+dir,0,x)}
+ const snap=JSON.stringify(S.programs),pid=p.id,undo=()=>{S.programs=JSON.parse(snap);S.ui.edit=pid;draft=null;pushPrograms();rProg()};
+ if(t.dataset.mv){const[i,dir]=t.dataset.mv.split(',').map(Number);const[x]=p.ex.splice(i,1);p.ex.splice(i+dir,0,x)}
  else if(t.dataset.del){const[x]=p.ex.splice(+t.dataset.del,1);toast(`${x.name||'Øvelse'} fjernet`,undo)}
  else if(t.id==='addex')p.ex.push({name:'',sets:3,reps:'10'});
- else if(t.id==='delprog'){S.programs=S.programs.filter(q=>q!==p);S.ui.edit=null;toast(`${p.name} slettet`,undo)}
+ else if(t.id==='delprog'){S.programs=S.programs.filter(q=>q!==p);S.ui.edit=null;toast(`${p.name||'Program'} slettet`,undo)}
  else return;
- draft=null;save();rProg();flash();
+ draft=null;pushPrograms();rProg();
  if(t.id==='addex'){const ins=document.querySelectorAll('[data-f="name"]');ins[ins.length-1]?.focus()}});
 
-$('#reset').onclick=()=>{const prev=JSON.stringify(S);S=seed();draft=null;save();render();toast('Demodata nulstillet',()=>{S=JSON.parse(prev);draft=null;save();render()})};
+// ---------- Login ----------
+let authMode='login';
+function showAuth(mode,msg=''){
+ authMode=mode;booted=false;document.body.classList.add('out');
+ $('#loading').hidden=true;$('#app').hidden=true;$('#heroband').hidden=true;$('#auth').hidden=false;
+ const reset=mode==='reset',forgot=mode==='forgot';
+ $('#authtitle').textContent=reset?'Nyt kodeord':forgot?'Glemt kodeord':'Log ind';
+ $('#authsub').textContent=reset?'Vælg et nyt kodeord på mindst 8 tegn.':forgot?'Skriv din mail, så sender vi et link til at vælge et nyt kodeord.':'Dine træninger, programmer og vejninger gemmes på din konto.';
+ $('#emailwrap').hidden=reset;$('#pwwrap').hidden=forgot;
+ $('#apw').autocomplete=reset?'new-password':'current-password';
+ $('#authbtns').innerHTML=reset?'<button class="btn" data-act="newpw">Gem kodeord</button>':forgot?'<button class="btn" data-act="sendreset">Send link</button><button class="ghost" type="button" data-act="back">Tilbage</button>':'<button class="btn" data-act="login">Log ind</button><button class="ghost" data-act="signup">Opret konto</button>';
+ $('#forgot').hidden=mode!=='login';
+ $('#authmsg').textContent=msg;
+}
+const authErr=m=>/Invalid login/i.test(m)?'Forkert mail eller kodeord.':/not confirmed/i.test(m)?'Bekræft din mail først. Tjek din indbakke for linket.':/already registered/i.test(m)?'Der findes allerede en konto med den mail. Log ind i stedet.':/Password should be/i.test(m)?'Kodeordet skal være mindst 8 tegn.':/rate limit|too many/i.test(m)?'For mange forsøg. Vent lidt og prøv igen.':/signups not allowed/i.test(m)?'Der kan ikke oprettes nye konti.':m;
+$('#forgot').onclick=()=>showAuth('forgot');
+$('#authform').addEventListener('click',async e=>{
+ const b=e.target.closest('[data-act]');if(!b)return;e.preventDefault();
+ const act=b.dataset.act,email=$('#aemail').value.trim(),pw=$('#apw').value,msg=$('#authmsg');
+ if(act==='back')return showAuth('login');
+ if(act!=='newpw'&&!/^\S+@\S+\.\S+$/.test(email)){msg.textContent='Skriv en gyldig mail.';return}
+ if(['login','signup','newpw'].includes(act)&&pw.length<8){msg.textContent='Kodeordet skal være mindst 8 tegn.';return}
+ b.disabled=true;msg.textContent='Et øjeblik…';
+ let r;
+ if(act==='login')r=await sb.auth.signInWithPassword({email,password:pw});
+ else if(act==='signup'){r=await sb.auth.signUp({email,password:pw,options:{emailRedirectTo:APP_URL}});if(!r.error&&!r.data.session){msg.textContent='Næsten færdig: tjek din mail og klik på linket for at bekræfte. Log derefter ind her.';b.disabled=false;return}}
+ else if(act==='sendreset'){r=await sb.auth.resetPasswordForEmail(email,{redirectTo:APP_URL});if(!r.error){msg.textContent='Hvis mailen har en konto, er der sendt et link. Tjek din indbakke.';b.disabled=false;return}}
+ else if(act==='newpw'){r=await sb.auth.updateUser({password:pw});if(!r.error){toast('Kodeord opdateret');start();return}}
+ b.disabled=false;
+ msg.textContent=r.error?authErr(r.error.message):'';
+});
+$('#logout').onclick=async()=>{await sb.auth.signOut()};
 
-render();
+let starting=false;
+async function start(){
+ if(booted||starting)return;starting=true;
+ $('#auth').hidden=true;$('#loading').hidden=false;
+ try{await loadAll()}catch(err){console.error(err);starting=false;$('#loading').innerHTML='<p>Kunne ikke hente dine data. Tjek forbindelsen og genindlæs siden.</p>';return}
+ starting=false;booted=true;draft=null;document.body.classList.remove('out');
+ $('#loading').hidden=true;$('#app').hidden=false;$('#who').textContent=user?'Logget ind som '+user.email:'';
+ if(/access_token|error_description/.test(location.hash))history.replaceState(null,'',APP_URL+'#oversigt');
+ render();
+}
+sb.auth.onAuthStateChange((ev,session)=>{
+ user=session?.user||null;
+ if(ev==='PASSWORD_RECOVERY'){setTimeout(()=>showAuth('reset'),0);return}
+ if(session){if(!booted&&authMode!=='reset')setTimeout(start,0)}
+ else setTimeout(()=>showAuth('login'),0);
+});
+
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
 </script>
 </body>
