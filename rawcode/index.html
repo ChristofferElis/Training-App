@@ -126,6 +126,15 @@ td{padding:10px;border-bottom:1px solid var(--line)}
 .linkbtn{background:none;border:0;color:var(--blue);font-weight:650;padding:6px 0;justify-self:start;min-height:40px}
 #authmsg{margin:0;font-size:15px}
 .loading{min-height:60vh;display:grid;place-items:center;color:var(--mute)}
+#sugg{position:fixed;z-index:30;list-style:none;margin:0;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);max-height:300px;overflow:auto}
+#sugg li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 12px;border-radius:8px;cursor:pointer;min-height:44px}
+#sugg li:hover,#sugg li[aria-selected=true]{background:var(--bg)}
+#sugg small{color:var(--mute);font-size:13px;white-space:nowrap}
+.exh{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.rm{width:40px;height:40px;flex:none;border-radius:10px;border:1.5px solid var(--line);background:none;color:var(--mute);font-weight:700}
+.addrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:12px}
+.addrow input{height:44px;width:100%;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:16px;padding:0 10px}
+.addcard{border-style:dashed}
 #toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,140%);background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 10px 10px 16px;display:flex;gap:14px;align-items:center;transition:transform .25s;z-index:20;max-width:calc(100vw - 24px)}
 #toast.show{transform:translate(-50%,0)}
 #toast button{background:var(--yel);color:#151515;border:0;border-radius:8px;min-height:40px;padding:0 12px;font-weight:750}
@@ -197,6 +206,7 @@ td{padding:10px;border-bottom:1px solid var(--line)}
    <div class="card"><h2>Seneste løft</h2><ul class="recent" id="recent"></ul></div>
   </div>
   <h2 class="sec">Udvalgte øvelser <a href="#progression">Alle øvelser</a></h2>
+  <p class="mute small" id="favnote" style="margin:-6px 0 12px"></p>
   <div class="favs" id="favs"></div>
  </section>
 
@@ -210,9 +220,8 @@ td{padding:10px;border-bottom:1px solid var(--line)}
 
  <section id="v-programmer" class="view band" hidden>
   <h1>Programmer</h1>
-  <p class="mute">Programmerne er ikke bundet til bestemte dage. Du vælger frit, hvad du træner, og appen foreslår ud fra, hvad du kørte samme dag sidste uge. Ændringer gemmes med det samme.</p>
+  <p class="mute">Programmerne er valgfrie: opret, omdøb eller slet dem, som du vil. De er ikke bundet til bestemte dage, og historikken for dine øvelser bevares, også hvis du sletter et program. Ændringer gemmes med det samme.</p>
   <div class="pgrid"><div class="plist" id="plist"></div><div class="card" id="editor"></div></div>
-  <datalist id="exnames"></datalist>
  </section>
 
  <section id="v-progression" class="view band" hidden>
@@ -261,11 +270,15 @@ try{S.ui=JSON.parse(localStorage.getItem('cpl-ui'))||{}}catch(e){}
 const saveUi=()=>{try{localStorage.setItem('cpl-ui',JSON.stringify(S.ui))}catch(e){}};
 let user=null,booted=false;
 
-const STARTER=[
- ['Push',[['Bænkpres',4,'6'],['Incline bænk (Smith)',3,'8'],['Incline dumbbell',3,'10'],['Skulderpres',3,'8'],['Triceps pushdown',3,'12']]],
- ['Pull',[['Dødløft',3,'5'],['Lat pulldown',4,'8'],['Kabelroning',3,'10'],['Biceps curl',3,'12']]],
- ['Ben',[['Squat',4,'6'],['Rumænsk dødløft',3,'8'],['Benpres',3,'10'],['Lægløft',4,'12']]]];
-const STARTER_FAV=['Bænkpres','Incline bænk (Smith)','Incline dumbbell'];
+const STARTER=['Push','Pull','Legs'];
+// Forslag til øvelsesnavne. Brugerens egne, tidligere brugte navne foreslås altid først.
+const LIBRARY=['Barbell Bench Press','Incline Barbell Bench Press','Incline Smith Machine Press','Flat Dumbbell Press','Incline Dumbbell Press','Decline Bench Press','Machine Chest Press','Cable Fly','Low-to-High Cable Fly','Pec Deck Fly','Chest Dips','Push-Up',
+'Overhead Press','Seated Dumbbell Shoulder Press','Machine Shoulder Press','Arnold Press','Dumbbell Lateral Raise','Cable Lateral Raise','Rear Delt Fly','Reverse Pec Deck','Face Pull','Upright Row',
+'Triceps Pushdown','Rope Triceps Pushdown','Overhead Cable Triceps Extension','Skull Crusher','Close-Grip Bench Press','Triceps Dips',
+'Conventional Deadlift','Sumo Deadlift','Rack Pull','Pull-Up','Chin-Up','Lat Pulldown','Close-Grip Lat Pulldown','Single Arm Lat Pulldown','Seated Cable Row','Single Arm Cable Row','Barbell Row','Pendlay Row','Single Arm Dumbbell Row','Chest-Supported T-Bar Row','Machine Row','Straight Arm Pulldown','Back Extension','Barbell Shrug','Dumbbell Shrug',
+'Barbell Curl','EZ-Bar Curl','Dumbbell Curl','Incline Dumbbell Curl','Hammer Curl','Preacher Curl','Cable Curl','Bayesian Cable Curl',
+'Back Squat','Front Squat','Hack Squat','Smith Machine Squat','Goblet Squat','Leg Press','Romanian Deadlift','Bulgarian Split Squat','Walking Lunge','Leg Extension','Lying Leg Curl','Seated Leg Curl','Hip Thrust','Glute Bridge','Standing Calf Raise','Seated Calf Raise','Hip Adduction','Hip Abduction',
+'Cable Crunch','Hanging Leg Raise','Ab Wheel Rollout','Plank'];
 
 let tt;
 function toast(m,undo){const t=$('#toast');t.innerHTML=`<span>${esc(m)}</span>${undo?'<button id="undo">Fortryd</button>':''}`;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),5500);if(undo)$('#undo').onclick=()=>{undo();t.classList.remove('show')}}
@@ -283,12 +296,11 @@ async function loadAll(){
  S.sessions=s.data.map(r=>({id:r.id,d:r.date,pid:r.program_id,prog:r.program_name,ex:r.exercises||[]}));
  S.weights=w.data.map(r=>({d:r.date,kg:+r.kg}));
  S.fav=st.data?st.data.favorites:null;
- if(!S.programs.length&&!S.sessions.length&&S.fav===null){
-  S.programs=STARTER.map(([name,ex])=>({id:uid(),name,ex:ex.map(([n,a,r])=>({name:n,sets:a,reps:r}))}));
-  S.fav=STARTER_FAV.slice();
-  const a=await sb.from('programs').insert(S.programs.map((q,i)=>({id:q.id,name:q.name,exercises:q.ex,position:i})));
-  const b=await sb.from('settings').upsert({favorites:S.fav},{onConflict:'user_id'});
-  if(a.error||b.error)fail(a.error||b.error);
+ if(S.fav===null&&!S.programs.length&&!S.sessions.length){
+  // Første login: indstillinger oprettes først, så to faner ikke begge opretter startprogrammer
+  const a=await sb.from('settings').insert({favorites:[]});
+  if(!a.error){S.programs=STARTER.map(n=>({id:uid(),name:n,ex:[]}));const b=await sb.from('programs').insert(S.programs.map((q,i)=>({id:q.id,name:q.name,exercises:[],position:i})));if(b.error)fail(b.error)}
+  else{const p2=await sb.from('programs').select('id,name,exercises,position').order('position');if(!p2.error)S.programs=p2.data.map(r=>({id:r.id,name:r.name,ex:r.exercises||[]}))}
  }
  S.fav=S.fav||[];
  knownProgs=new Set(S.programs.map(q=>q.id));
@@ -305,7 +317,49 @@ const pushFav=async()=>{const r=await sb.from('settings').upsert({favorites:S.fa
 
 // ---------- Udledte data ----------
 const hist=name=>S.sessions.filter(s=>s.ex.some(e=>e.name===name&&e.sets.length)).map(s=>{const e=s.ex.find(x=>x.name===name&&x.sets.length);const top=e.sets.reduce((a,b)=>b.kg>a.kg||(b.kg===a.kg&&b.reps>a.reps)?b:a);return{d:s.d,t:parse(s.d).getTime(),sets:e.sets,top,rm:Math.max(...e.sets.map(x=>e1rm(x.kg,x.reps)))}}).sort((a,b)=>a.t-b.t);
-const allEx=()=>[...new Set([...S.programs.flatMap(p=>p.ex.map(e=>e.name.trim())),...S.sessions.flatMap(s=>s.ex.map(e=>e.name))])].filter(Boolean);
+// Øvelser med logget historik, senest trænede først
+const doneEx=()=>{const m=new Map();for(const s of S.sessions)for(const e of s.ex)if(e.sets.length)m.set(e.name,s.d);return[...m.entries()].sort((a,b)=>a[1]<b[1]?1:a[1]>b[1]?-1:0).map(x=>x[0])};
+const myEx=()=>[...new Set([...doneEx(),...S.programs.flatMap(p=>p.ex.map(e=>e.name.trim()))])].filter(Boolean);
+const featured=()=>{const d=doneEx(),f=S.fav.filter(n=>d.includes(n));return f.length?{list:f,auto:false}:{list:d.slice(0,3),auto:true}};
+
+// ---------- Forslag mens man skriver (tåler stavefejl) ----------
+const norm=s=>String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9æøå]+/g,' ').trim();
+function lev(a,b){const d=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let p=d[0];d[0]=i;for(let j=1;j<=b.length;j++){const t=d[j];d[j]=Math.min(d[j]+1,d[j-1]+1,p+(a[i-1]===b[j-1]?0:1));p=t}}return d[b.length]}
+function score(q,n){
+ const a=norm(q),b=norm(n);if(!a||a===b)return 0;
+ const words=b.split(' '),tol=a.length>=8?2:1;
+ if(b.startsWith(a))return 100-(b.length-a.length)*.1;
+ if(words.some(w=>w.startsWith(a)))return 85;
+ if(b.includes(a))return 70;
+ const qt=a.split(' ');
+ const near=(t,w)=>t.length>3&&Math.min(lev(t,w.slice(0,t.length-1)),lev(t,w.slice(0,t.length)),lev(t,w.slice(0,t.length+1)))<=(t.length>=7?2:1);
+ if(qt.every(t=>words.some(w=>w.startsWith(t)||near(t,w))))return 60;
+ if(a.length>=4){const k=lev(a,b.slice(0,a.length));if(k<=tol)return 50-k;if(words.some(w=>w.length>=4&&lev(a,w)<=tol))return 45}
+ return 0}
+function suggestions(q,exclude=[]){
+ const mine=myEx(),ex=exclude.map(norm),seen=new Set(),out=[];
+ for(const n of mine){const sc=score(q,n);if(sc>0)out.push({n,s:sc+30,mine:true})}
+ for(const n of LIBRARY){const sc=score(q,n);if(sc>0)out.push({n,s:sc})}
+ return out.sort((a,b)=>b.s-a.s).filter(x=>{const k=norm(x.n);if(ex.includes(k)||seen.has(k))return false;seen.add(k);return true}).slice(0,6)}
+const sug=document.createElement('ul');sug.id='sugg';sug.setAttribute('role','listbox');sug.hidden=true;document.body.appendChild(sug);
+let sugIn=null,sugIdx=-1,sugItems=[],picking=false;
+function placeSug(){if(!sugIn)return;const r=sugIn.getBoundingClientRect();Object.assign(sug.style,{left:Math.max(8,Math.min(r.left,innerWidth-Math.max(r.width,260)-8))+'px',top:(r.bottom+4)+'px',width:Math.max(r.width,260)+'px'})}
+function openSug(inp){
+ const exclude=inp.dataset.sugg==='draft'&&draft?draft.ex.map(e=>e.name):[];
+ sugItems=inp.value.trim()?suggestions(inp.value,exclude):[];sugIdx=-1;sugIn=inp;
+ if(!sugItems.length){sug.hidden=true;return}
+ sug.innerHTML=sugItems.map((x,i)=>`<li role="option" data-i="${i}"><span>${esc(x.n)}</span>${x.mine?'<small>brugt før</small>':''}</li>`).join('');
+ sug.hidden=false;placeSug()}
+function closeSug(){sug.hidden=true;sugIn=null;sugIdx=-1}
+function pickSug(i){const inp=sugIn,x=sugItems[i];if(!inp||!x)return;inp.value=x.n;closeSug();picking=true;inp.dispatchEvent(new Event('input',{bubbles:true}));picking=false;inp.dispatchEvent(new CustomEvent('picked',{bubbles:true}))}
+document.addEventListener('input',e=>{if(!picking&&e.target.matches&&e.target.matches('[data-sugg]'))openSug(e.target)});
+document.addEventListener('focusout',e=>{if(e.target===sugIn)setTimeout(()=>{if(document.activeElement!==sugIn)closeSug()},150)});
+sug.addEventListener('pointerdown',e=>{e.preventDefault();const li=e.target.closest('li');if(li)pickSug(+li.dataset.i)});
+document.addEventListener('keydown',e=>{if(sug.hidden||e.target!==sugIn)return;
+ if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();sugIdx=(sugIdx+(e.key==='ArrowDown'?1:-1)+sugItems.length)%sugItems.length;[...sug.children].forEach((li,i)=>li.setAttribute('aria-selected',i===sugIdx))}
+ else if(e.key==='Enter'&&sugIdx>=0){e.preventDefault();e.stopImmediatePropagation();pickSug(sugIdx)}
+ else if(e.key==='Escape')closeSug()},true);
+addEventListener('scroll',placeSug,true);addEventListener('resize',placeSug);
 const sessOn=d=>S.sessions.filter(s=>s.d===iso(d));
 const lastOf=p=>S.sessions.filter(s=>s.pid?s.pid===p.id:s.prog===p.name).at(-1);
 const ago=d=>{const n=Math.round((TODAY-parse(d))/864e5);return n<=0?'i dag':n===1?'i går':n+' dage siden'};
@@ -381,14 +435,16 @@ function rOversigt(){
  const rec=[];for(const s of S.sessions.slice().reverse()){for(const e of s.ex)if(e.sets.length)rec.push({s,e});if(rec.length>=6)break}
  $('#recent').innerHTML=rec.slice(0,6).map(({s,e})=>{const h=hist(e.name),i=h.findIndex(x=>x.d===s.d),top=h[i].top,prev=h[i-1],dl=prev?top.kg-prev.top.kg:0;
   return`<li><div><b>${esc(e.name)}</b><span class="mute">${fdate(s.d)} · ${esc(s.prog)}</span></div><div class="num">${nf(top.kg)} kg × ${top.reps}</div><span class="chip ${dl>0?'up':dl<0?'down':''}">${prev?(dl?sign(dl)+' kg':'samme'):'ny'}</span></li>`}).join('')||'<li class="mute">Ingen træninger logget endnu.</li>';
- $('#favs').innerHTML=S.fav.map((n,i)=>{const h=hist(n),L=h.at(-1),F=h[0],pct=L&&F&&F.rm?(L.rm-F.rm)/F.rm*100:0;
-  return`<a class="card spark" href="#progression" data-ex="${esc(n)}"><div class="row"><b>${esc(n)}</b>${h.length>1?`<span class="chip ${pct>=0?'up':'down'}">${pct>=0?'+':'−'}${nf(Math.abs(pct),0)} %</span>`:''}</div><div class="num big2">${L?nf(L.rm,0):'–'}<small> kg est. 1RM</small></div><div class="fig sm"><svg id="sp${i}" aria-hidden="true"></svg></div></a>`}).join('')||'<p class="mute">Markér øvelser med ☆ under Progression for at vise dem her.</p>';
- S.fav.forEach((n,i)=>chart($('#sp'+i),[{pts:hist(n).map(h=>({t:h.t,y:h.rm})),color:'var(--blue)',area:true,w:2}],{spark:true}));
+ const ft=featured();
+ $('#favnote').textContent=ft.list.length?(ft.auto?'Dine senest trænede øvelser. Markér med ☆ under Progression for at vælge selv.':''):'';
+ $('#favs').innerHTML=ft.list.map((n,i)=>{const h=hist(n),L=h.at(-1),F=h[0],pct=L&&F&&F.rm?(L.rm-F.rm)/F.rm*100:0;
+  return`<a class="card spark" href="#progression" data-ex="${esc(n)}"><div class="row"><b>${esc(n)}</b>${h.length>1?`<span class="chip ${pct>=0?'up':'down'}">${pct>=0?'+':'−'}${nf(Math.abs(pct),0)} %</span>`:''}</div><div class="num big2">${L?nf(L.rm,0):'–'}<small> kg est. 1RM</small></div><div class="fig sm"><svg id="sp${i}" aria-hidden="true"></svg></div></a>`}).join('')||'<p class="mute">Når du har logget træninger, vises dine øvelser og deres progression her.</p>';
+ ft.list.forEach((n,i)=>chart($('#sp'+i),[{pts:hist(n).map(h=>({t:h.t,y:h.rm})),color:'var(--blue)',area:true,w:2}],{spark:true}));
 }
 
 let draft=null;
 function buildDraft(p){draft={pid:p.id,name:p.name,ex:p.ex.filter(e=>e.name.trim()).map(e=>{const h=hist(e.name.trim()),L=h.at(-1);
- return{name:e.name.trim(),target:e.sets+' × '+e.reps,last:L?L.sets.map(s=>nf(s.kg)+'×'+s.reps).join(', ')+' ('+fdate(L.d)+')':'første gang',
+ return{name:e.name.trim(),target:e.reps?e.sets+' × '+e.reps:e.sets+' sæt',last:L?L.sets.map(s=>nf(s.kg)+'×'+s.reps).join(', ')+' ('+fdate(L.d)+')':'første gang',
   sets:Array.from({length:e.sets},(_,j)=>{const ref=L?(L.sets[j]||L.top):null;return{kg:ref?nf(ref.kg):'',reps:ref?ref.reps:parseInt(e.reps)||'',done:false}})}})}}
 function updProgress(){if(!draft)return;const all=draft.ex.flatMap(e=>e.sets),d=all.filter(s=>s.done).length;$('#sbtxt').textContent=`${d} af ${all.length} sæt udført`;$('#sbm').style.width=(all.length?d/all.length*100:0)+'%'}
 function rTraen(){
@@ -397,12 +453,12 @@ function rTraen(){
  const p=S.programs.find(q=>q.id===S.ui.pid);
  if(p&&(!draft||draft.pid!==p.id))buildDraft(p);
  $('#restnote').hidden=false;$('#restnote').textContent=sg.why+'.'+(sg.p&&S.sessions.length?` ${sg.p.name} er foreslået, men du kan frit vælge et andet program.`:'');
- $('#progpick').innerHTML=S.programs.map(q=>`<button class="pick ${q.id===S.ui.pid?'on':''}" data-pid="${q.id}" aria-pressed="${q.id===S.ui.pid}"><b>${esc(q.name)||'Uden navn'}</b><span>${lastTxt(q)}</span></button>`).join('');
+ $('#progpick').innerHTML=S.programs.map(q=>`<button class="pick ${q.id===S.ui.pid?'on':''}" data-pid="${q.id}" aria-pressed="${q.id===S.ui.pid}"><b>${esc(q.name)||'Uden navn'}</b><span>${lastTxt(q)}</span></button>`).join('')+'<button class="ghost" id="tonewprog">+ Nyt program</button>';
  if(!p){$('#log').innerHTML='<p class="mute">Opret et program under Programmer først.</p>';$('#sbtxt').textContent='';return}
- $('#log').innerHTML=draft.ex.map((e,i)=>`<article class="card ex"><h3>${esc(e.name)}</h3><span class="mute">Mål ${esc(e.target)} · Sidst: ${esc(e.last)}</span>
+ $('#log').innerHTML=draft.ex.map((e,i)=>`<article class="card ex"><div class="exh"><h3>${esc(e.name)}</h3><button class="rm" data-rmex="${i}" aria-label="Fjern ${esc(e.name)} fra dagens træning">✕</button></div><span class="mute">Mål ${esc(e.target)} · Sidst: ${esc(e.last)}</span>
   <div class="sh"><span>Sæt</span><span>kg</span><span>reps</span><span></span></div>
   ${e.sets.map((s,j)=>`<div class="set ${s.done?'done':''}"><span class="n">${j+1}</span><input inputmode="decimal" aria-label="${esc(e.name)} sæt ${j+1} kg" data-i="${i}" data-j="${j}" data-k="kg" value="${esc(s.kg)}"><input inputmode="numeric" aria-label="${esc(e.name)} sæt ${j+1} reps" data-i="${i}" data-j="${j}" data-k="reps" value="${esc(s.reps)}"><button class="tick" data-tick="${i},${j}" aria-label="Sæt ${j+1} udført">✓</button></div>`).join('')}
-  <button class="ghost" data-addset="${i}">+ Tilføj sæt</button></article>`).join('')||'<p class="mute">Programmet har ingen øvelser endnu.</p>';
+  <button class="ghost" data-addset="${i}">+ Tilføj sæt</button></article>`).join('')+`<article class="card ex addcard"><h3>${draft.ex.length?'Tilføj øvelse':'Programmet er tomt'}</h3><span class="mute">${draft.ex.length?'Øvelsen':'Tilføj din første øvelse. Den'} kommer også med i ${esc(p.name)||'programmet'} næste gang.</span><div class="addrow"><input id="newex" data-sugg="draft" placeholder="Fx Incline Dumbbell Press" autocomplete="off" autocapitalize="words" aria-label="Ny øvelse"><button class="btn" id="addexbtn">Tilføj</button></div></article>`;
  updProgress();
 }
 
@@ -411,20 +467,19 @@ function rPlist(){$('#plist').innerHTML=S.programs.map(p=>`<button class="pick $
 function rProg(){
  if(!curProg())S.ui.edit=S.programs[0]?.id;
  rPlist();const p=curProg();
- $('#exnames').innerHTML=allEx().map(n=>`<option value="${esc(n)}">`).join('');
  if(!p){$('#editor').innerHTML='<p class="mute">Ingen programmer endnu. Opret et nyt.</p>';return}
  $('#editor').innerHTML=`<label class="fl">Programnavn<input id="pname" value="${esc(p.name)}" autocomplete="off"></label>
  <div class="exhead"><span>Øvelse</span><span style="text-align:center">Sæt</span><span style="text-align:center">Reps</span><span></span></div>
- ${p.ex.map((e,i)=>`<div class="exrow"><input aria-label="Øvelse ${i+1}" placeholder="Øvelse" data-f="name" data-i="${i}" value="${esc(e.name)}" list="exnames" autocomplete="off"><input aria-label="Antal sæt" inputmode="numeric" data-f="sets" data-i="${i}" value="${e.sets}"><input aria-label="Reps" placeholder="8-10" data-f="reps" data-i="${i}" value="${esc(e.reps)}"><div class="acts"><button data-mv="${i},-1" aria-label="Flyt op" ${i?'':'disabled'}>↑</button><button data-mv="${i},1" aria-label="Flyt ned" ${i<p.ex.length-1?'':'disabled'}>↓</button><button data-del="${i}" aria-label="Fjern ${esc(e.name)}">✕</button></div></div>`).join('')}
+ ${p.ex.map((e,i)=>`<div class="exrow"><input aria-label="Øvelse ${i+1}" placeholder="Fx Barbell Bench Press" data-f="name" data-i="${i}" value="${esc(e.name)}" data-sugg="prog" autocomplete="off" autocapitalize="words"><input aria-label="Antal sæt" inputmode="numeric" data-f="sets" data-i="${i}" value="${e.sets}"><input aria-label="Reps" placeholder="8-10" data-f="reps" data-i="${i}" value="${esc(e.reps)}"><div class="acts"><button data-mv="${i},-1" aria-label="Flyt op" ${i?'':'disabled'}>↑</button><button data-mv="${i},1" aria-label="Flyt ned" ${i<p.ex.length-1?'':'disabled'}>↓</button><button data-del="${i}" aria-label="Fjern ${esc(e.name)}">✕</button></div></div>`).join('')}
  <div class="row gap"><button class="ghost" id="addex">+ Tilføj øvelse</button><button class="ghost danger" id="delprog">Slet program</button></div>
  <p class="mute small" id="saved">Ændringer gemmes automatisk.</p>`;
 }
 
 function rProgr(){
- const names=allEx();if(!names.includes(S.ui.ex))S.ui.ex=S.fav[0]||names[0];
- const n=S.ui.ex;
- $('#expick').innerHTML=names.map(x=>`<button class="tag ${x===n?'on':''}" data-ex="${esc(x)}">${S.fav.includes(x)?'★ ':''}${esc(x)}</button>`).join('');
- if(!n){$('#extitle').textContent='Ingen øvelser endnu';$('#exstats').innerHTML='';$('#extable').innerHTML='';chart($('#exchart'),[{pts:[]}]);return}
+ const names=doneEx();if(!names.includes(S.ui.ex))S.ui.ex=featured().list[0]||names[0];
+ const n=S.ui.ex;$('#favbtn').hidden=!n;
+ $('#expick').innerHTML=names.slice().sort((a,b)=>a.localeCompare(b)).map(x=>`<button class="tag ${x===n?'on':''}" data-ex="${esc(x)}">${S.fav.includes(x)?'★ ':''}${esc(x)}</button>`).join('');
+ if(!n){$('#extitle').textContent='Ingen træninger endnu';$('#exstats').innerHTML='<p class="mute">Når du har logget din første træning, kan du følge progressionen for hver øvelse her.</p>';$('#extable').innerHTML='';chart($('#exchart'),[{pts:[]}]);return}
  const h=hist(n),L=h.at(-1),F=h[0],best=h.reduce((a,b)=>!a||b.top.kg>a.top.kg?b:a,null);
  $('#extitle').textContent=n;const fav=S.fav.includes(n);
  $('#favbtn').textContent=fav?'★ Vises på forsiden':'☆ Vis på forsiden';$('#favbtn').setAttribute('aria-pressed',fav);
@@ -459,9 +514,24 @@ $('#wform').onsubmit=async e=>{e.preventDefault();const kg=parseFloat($('#win').
 document.addEventListener('click',e=>{const a=e.target.closest('[data-ex]');if(!a)return;S.ui.ex=a.dataset.ex;saveUi();if(location.hash==='#progression'){e.preventDefault();rProgr()}});
 $('#favbtn').onclick=()=>{const n=S.ui.ex;if(!n)return;if(S.fav.includes(n))S.fav=S.fav.filter(x=>x!==n);else{if(S.fav.length>=4){toast('Højst 4 øvelser på forsiden');return}S.fav.push(n)}pushFav();rProgr()};
 
-$('#progpick').onclick=e=>{const b=e.target.closest('[data-pid]');if(!b)return;S.ui.pid=b.dataset.pid;S.ui.pday=iso(TODAY);saveUi();draft=null;rTraen()};
+$('#progpick').onclick=e=>{
+ if(e.target.closest('#tonewprog')){const p={id:uid(),name:'Nyt program',ex:[]};S.programs.push(p);S.ui.edit=p.id;saveUi();pushPrograms();location.hash='programmer';setTimeout(()=>$('#pname')?.select(),50);return}
+ const b=e.target.closest('[data-pid]');if(!b)return;S.ui.pid=b.dataset.pid;S.ui.pday=iso(TODAY);saveUi();draft=null;rTraen()};
 $('#log').addEventListener('input',e=>{const t=e.target;if(t.dataset.k&&draft)draft.ex[t.dataset.i].sets[t.dataset.j][t.dataset.k]=t.value});
+function addDraftEx(raw){
+ const name=raw.replace(/\s+/g,' ').trim(),p=S.programs.find(q=>q.id===draft?.pid);if(!name||!p)return;
+ if(draft.ex.some(e=>norm(e.name)===norm(name))){toast(`${name} er allerede med i dag`);return}
+ const L=hist(name).at(-1),n=L?L.sets.length:3;
+ draft.ex.push({name,target:n+' sæt',last:L?L.sets.map(s=>nf(s.kg)+'×'+s.reps).join(', ')+' ('+fdate(L.d)+')':'første gang',sets:Array.from({length:n},(_,j)=>{const r=L?(L.sets[j]||L.top):null;return{kg:r?nf(r.kg):'',reps:r?r.reps:'',done:false}})});
+ if(!p.ex.some(e=>norm(e.name)===norm(name))){p.ex.push({name,sets:n,reps:''});pushPrograms()}
+ const i=draft.ex.length-1;rTraen();document.querySelector(`[data-i="${i}"][data-k="kg"]`)?.focus();
+}
+$('#log').addEventListener('picked',e=>{if(e.target.id==='newex')addDraftEx(e.target.value)});
+$('#log').addEventListener('keydown',e=>{if(e.target.id==='newex'&&e.key==='Enter'){e.preventDefault();closeSug();addDraftEx(e.target.value)}});
 $('#log').addEventListener('click',e=>{
+ if(e.target.closest('#addexbtn')){closeSug();addDraftEx($('#newex').value);return}
+ const rm=e.target.closest('[data-rmex]');
+ if(rm){const[x]=draft.ex.splice(+rm.dataset.rmex,1);rTraen();toast(`${x.name} fjernet fra dagens træning`);return}
  const t=e.target.closest('[data-tick]');
  if(t){const[i,j]=t.dataset.tick.split(','),s=draft.ex[i].sets[j];s.done=!s.done;t.closest('.set').classList.toggle('done',s.done);updProgress();return}
  const a=e.target.closest('[data-addset]');
@@ -483,7 +553,7 @@ $('#savews').onclick=async()=>{
 const flash=()=>{const s=$('#saved');if(s)s.textContent='Gemt '+new Date().toLocaleTimeString('da-DK',{hour:'2-digit',minute:'2-digit'})};
 $('#plist').onclick=e=>{
  const b=e.target.closest('[data-edit]');if(b){S.ui.edit=b.dataset.edit;saveUi();rProg();return}
- if(e.target.closest('#newprog')){const p={id:uid(),name:'Nyt program',ex:[{name:'',sets:3,reps:'10'}]};S.programs.push(p);S.ui.edit=p.id;pushPrograms();rProg();$('#pname').select()}};
+ if(e.target.closest('#newprog')){const p={id:uid(),name:'Nyt program',ex:[]};S.programs.push(p);S.ui.edit=p.id;pushPrograms();rProg();$('#pname').select()}};
 $('#editor').addEventListener('input',e=>{
  const p=curProg(),t=e.target;if(!p)return;
  if(t.id==='pname')p.name=t.value;
@@ -495,7 +565,7 @@ $('#editor').addEventListener('click',e=>{
  const snap=JSON.stringify(S.programs),pid=p.id,undo=()=>{S.programs=JSON.parse(snap);S.ui.edit=pid;draft=null;pushPrograms();rProg()};
  if(t.dataset.mv){const[i,dir]=t.dataset.mv.split(',').map(Number);const[x]=p.ex.splice(i,1);p.ex.splice(i+dir,0,x)}
  else if(t.dataset.del){const[x]=p.ex.splice(+t.dataset.del,1);toast(`${x.name||'Øvelse'} fjernet`,undo)}
- else if(t.id==='addex')p.ex.push({name:'',sets:3,reps:'10'});
+ else if(t.id==='addex')p.ex.push({name:'',sets:3,reps:''});
  else if(t.id==='delprog'){S.programs=S.programs.filter(q=>q!==p);S.ui.edit=null;toast(`${p.name||'Program'} slettet`,undo)}
  else return;
  draft=null;pushPrograms();rProg();
