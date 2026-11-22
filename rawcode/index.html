@@ -172,7 +172,6 @@ td{padding:10px;border-bottom:1px solid var(--line)}
  <form id="authform" class="card authcard" novalidate>
   <h1 id="authtitle" style="font-size:34px">Log ind</h1>
   <p class="mute" id="authsub" style="margin:0">Dine træninger, programmer og vejninger gemmes på din konto.</p>
-  <label id="namewrap" hidden>Fornavn<input id="aname" autocomplete="given-name" maxlength="40"></label>
   <label id="emailwrap">Mail<input id="aemail" type="email" autocomplete="email" inputmode="email" required></label>
   <label id="pwwrap">Kodeord<input id="apw" type="password" autocomplete="current-password" minlength="8" required></label>
   <div class="row" id="authbtns">
@@ -573,6 +572,11 @@ $('#editor').addEventListener('click',e=>{
 
 // ---------- Login ----------
 let authMode='login';
+// Fornavn ud fra mailen: "christoffer.hedebo@gmail.com" -> "Christoffer"
+function nameFromEmail(email){
+ const first=String(email||'').split('@')[0].split(/[._\-+\d]+/).find(t=>/^[a-zæøåäöü]{2,}$/i.test(t));
+ return first?first[0].toUpperCase()+first.slice(1).toLowerCase():'';
+}
 function setBrand(name){const t=name?name+' Progress Log':'Progress Log';$('#brand').textContent=t;document.title=t}
 function showAuth(mode,msg=''){
  authMode=mode;booted=false;document.body.classList.add('out');setBrand('');
@@ -580,7 +584,7 @@ function showAuth(mode,msg=''){
  const reset=mode==='reset',forgot=mode==='forgot',signup=mode==='signup';
  $('#authtitle').textContent=reset?'Nyt kodeord':forgot?'Glemt kodeord':signup?'Opret konto':'Log ind';
  $('#authsub').textContent=reset?'Vælg et nyt kodeord på mindst 8 tegn.':forgot?'Skriv din mail, så sender vi et link til at vælge et nyt kodeord.':signup?'Hold styr på dine programmer, løft og din vægt. Kodeordet skal være mindst 8 tegn.':'Dine træninger, programmer og vejninger gemmes på din konto.';
- $('#namewrap').hidden=!signup;$('#emailwrap').hidden=reset;$('#pwwrap').hidden=forgot;
+ $('#emailwrap').hidden=reset;$('#pwwrap').hidden=forgot;
  $('#apw').autocomplete=reset||signup?'new-password':'current-password';
  $('#authbtns').innerHTML=reset?'<button class="btn" data-act="newpw">Gem kodeord</button>':forgot||signup?`<button class="btn" data-act="${forgot?'sendreset':'signup'}">${forgot?'Send link':'Opret konto'}</button><button class="ghost" type="button" data-act="back">Tilbage</button>`:'<button class="btn" data-act="login">Log ind</button>';
  $('#forgot').hidden=$('#tosignup').hidden=mode!=='login';
@@ -597,7 +601,7 @@ $('#authform').addEventListener('click',async e=>{
  b.disabled=true;msg.textContent='Et øjeblik…';
  let r;
  if(act==='login')r=await sb.auth.signInWithPassword({email,password:pw});
- else if(act==='signup'){const name=$('#aname').value.trim();if(!name){msg.textContent='Skriv dit fornavn.';b.disabled=false;return}
+ else if(act==='signup'){const name=nameFromEmail(email);
   r=await sb.auth.signUp({email,password:pw,options:{emailRedirectTo:APP_URL,data:{name}}});if(!r.error&&!r.data.session){msg.textContent='Næsten færdig: tjek din mail og klik på linket for at bekræfte. Log derefter ind her.';b.disabled=false;setTimeout(()=>{if(authMode==='signup'){const m=$('#authmsg').textContent;showAuth('login',m)}},50);return}}
  else if(act==='sendreset'){r=await sb.auth.resetPasswordForEmail(email,{redirectTo:APP_URL});if(!r.error){msg.textContent='Hvis mailen har en konto, er der sendt et link. Tjek din indbakke.';b.disabled=false;return}}
  else if(act==='newpw'){r=await sb.auth.updateUser({password:pw});if(!r.error){toast('Kodeord opdateret');start();return}}
@@ -612,7 +616,7 @@ async function start(){
  $('#auth').hidden=true;$('#loading').hidden=false;
  try{const u=await sb.auth.getUser();if(u.data?.user)user=u.data.user;await loadAll()}catch(err){console.error(err);starting=false;$('#loading').innerHTML='<p>Kunne ikke hente dine data. Tjek forbindelsen og genindlæs siden.</p>';return}
  starting=false;booted=true;draft=null;document.body.classList.remove('out');
- $('#loading').hidden=true;$('#app').hidden=false;$('#who').textContent=user?'Logget ind som '+user.email:'';setBrand(user?.user_metadata?.name||'');
+ $('#loading').hidden=true;$('#app').hidden=false;$('#who').textContent=user?'Logget ind som '+user.email:'';setBrand(user?.user_metadata?.name||nameFromEmail(user?.email));
  if(/access_token|error_description/.test(location.hash))history.replaceState(null,'',APP_URL+'#oversigt');
  render();
 }
