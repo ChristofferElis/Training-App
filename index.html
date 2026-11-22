@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chris progress log</title>
+<title>Progress Log</title>
 <meta name="theme-color" content="#2c2e32">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Progress log">
+<meta name="apple-mobile-web-app-title" content="Progress Log">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -148,7 +148,7 @@ td{padding:10px;border-bottom:1px solid var(--line)}
 </head>
 <body class="out">
 <header class="top">
- <a class="brand" href="#oversigt">Chris progress log</a>
+ <a class="brand" id="brand" href="#oversigt">Progress Log</a>
  <nav class="tabs" aria-label="Hovedmenu">
   <a href="#oversigt"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"/></svg>Oversigt</a>
   <a href="#traen"><svg viewBox="0 0 24 24"><path d="M3 10v4M6.5 7v10M17.5 7v10M21 10v4M6.5 12h11"/></svg>Træn</a>
@@ -163,13 +163,14 @@ td{padding:10px;border-bottom:1px solid var(--line)}
  <form id="authform" class="card authcard" novalidate>
   <h1 id="authtitle" style="font-size:34px">Log ind</h1>
   <p class="mute" id="authsub" style="margin:0">Dine træninger, programmer og vejninger gemmes på din konto.</p>
+  <label id="namewrap" hidden>Fornavn<input id="aname" autocomplete="given-name" maxlength="40"></label>
   <label id="emailwrap">Mail<input id="aemail" type="email" autocomplete="email" inputmode="email" required></label>
   <label id="pwwrap">Kodeord<input id="apw" type="password" autocomplete="current-password" minlength="8" required></label>
   <div class="row" id="authbtns">
    <button class="btn" data-act="login">Log ind</button>
    <button class="ghost" data-act="signup" type="submit">Opret konto</button>
   </div>
-  <button class="linkbtn" type="button" id="forgot">Glemt kodeord?</button>
+  <div class="row"><button class="linkbtn" type="button" id="tosignup">Opret ny konto</button><button class="linkbtn" type="button" id="forgot">Glemt kodeord?</button></div>
   <p id="authmsg" role="status" aria-live="polite"></p>
  </form>
 </section>
@@ -502,20 +503,21 @@ $('#editor').addEventListener('click',e=>{
 
 // ---------- Login ----------
 let authMode='login';
+function setBrand(name){const t=name?name+' Progress Log':'Progress Log';$('#brand').textContent=t;document.title=t}
 function showAuth(mode,msg=''){
- authMode=mode;booted=false;document.body.classList.add('out');
+ authMode=mode;booted=false;document.body.classList.add('out');setBrand('');
  $('#loading').hidden=true;$('#app').hidden=true;$('#heroband').hidden=true;$('#auth').hidden=false;
- const reset=mode==='reset',forgot=mode==='forgot';
- $('#authtitle').textContent=reset?'Nyt kodeord':forgot?'Glemt kodeord':'Log ind';
- $('#authsub').textContent=reset?'Vælg et nyt kodeord på mindst 8 tegn.':forgot?'Skriv din mail, så sender vi et link til at vælge et nyt kodeord.':'Dine træninger, programmer og vejninger gemmes på din konto.';
- $('#emailwrap').hidden=reset;$('#pwwrap').hidden=forgot;
- $('#apw').autocomplete=reset?'new-password':'current-password';
- $('#authbtns').innerHTML=reset?'<button class="btn" data-act="newpw">Gem kodeord</button>':forgot?'<button class="btn" data-act="sendreset">Send link</button><button class="ghost" type="button" data-act="back">Tilbage</button>':'<button class="btn" data-act="login">Log ind</button><button class="ghost" data-act="signup">Opret konto</button>';
- $('#forgot').hidden=mode!=='login';
+ const reset=mode==='reset',forgot=mode==='forgot',signup=mode==='signup';
+ $('#authtitle').textContent=reset?'Nyt kodeord':forgot?'Glemt kodeord':signup?'Opret konto':'Log ind';
+ $('#authsub').textContent=reset?'Vælg et nyt kodeord på mindst 8 tegn.':forgot?'Skriv din mail, så sender vi et link til at vælge et nyt kodeord.':signup?'Hold styr på dine programmer, løft og din vægt. Kodeordet skal være mindst 8 tegn.':'Dine træninger, programmer og vejninger gemmes på din konto.';
+ $('#namewrap').hidden=!signup;$('#emailwrap').hidden=reset;$('#pwwrap').hidden=forgot;
+ $('#apw').autocomplete=reset||signup?'new-password':'current-password';
+ $('#authbtns').innerHTML=reset?'<button class="btn" data-act="newpw">Gem kodeord</button>':forgot||signup?`<button class="btn" data-act="${forgot?'sendreset':'signup'}">${forgot?'Send link':'Opret konto'}</button><button class="ghost" type="button" data-act="back">Tilbage</button>`:'<button class="btn" data-act="login">Log ind</button>';
+ $('#forgot').hidden=$('#tosignup').hidden=mode!=='login';
  $('#authmsg').textContent=msg;
 }
 const authErr=m=>/Invalid login/i.test(m)?'Forkert mail eller kodeord.':/not confirmed/i.test(m)?'Bekræft din mail først. Tjek din indbakke for linket.':/already registered/i.test(m)?'Der findes allerede en konto med den mail. Log ind i stedet.':/Password should be/i.test(m)?'Kodeordet skal være mindst 8 tegn.':/rate limit|too many/i.test(m)?'For mange forsøg. Vent lidt og prøv igen.':/signups not allowed/i.test(m)?'Der kan ikke oprettes nye konti.':m;
-$('#forgot').onclick=()=>showAuth('forgot');
+$('#forgot').onclick=()=>showAuth('forgot');$('#tosignup').onclick=()=>showAuth('signup');
 $('#authform').addEventListener('click',async e=>{
  const b=e.target.closest('[data-act]');if(!b)return;e.preventDefault();
  const act=b.dataset.act,email=$('#aemail').value.trim(),pw=$('#apw').value,msg=$('#authmsg');
@@ -525,7 +527,8 @@ $('#authform').addEventListener('click',async e=>{
  b.disabled=true;msg.textContent='Et øjeblik…';
  let r;
  if(act==='login')r=await sb.auth.signInWithPassword({email,password:pw});
- else if(act==='signup'){r=await sb.auth.signUp({email,password:pw,options:{emailRedirectTo:APP_URL}});if(!r.error&&!r.data.session){msg.textContent='Næsten færdig: tjek din mail og klik på linket for at bekræfte. Log derefter ind her.';b.disabled=false;return}}
+ else if(act==='signup'){const name=$('#aname').value.trim();if(!name){msg.textContent='Skriv dit fornavn.';b.disabled=false;return}
+  r=await sb.auth.signUp({email,password:pw,options:{emailRedirectTo:APP_URL,data:{name}}});if(!r.error&&!r.data.session){msg.textContent='Næsten færdig: tjek din mail og klik på linket for at bekræfte. Log derefter ind her.';b.disabled=false;setTimeout(()=>{if(authMode==='signup'){const m=$('#authmsg').textContent;showAuth('login',m)}},50);return}}
  else if(act==='sendreset'){r=await sb.auth.resetPasswordForEmail(email,{redirectTo:APP_URL});if(!r.error){msg.textContent='Hvis mailen har en konto, er der sendt et link. Tjek din indbakke.';b.disabled=false;return}}
  else if(act==='newpw'){r=await sb.auth.updateUser({password:pw});if(!r.error){toast('Kodeord opdateret');start();return}}
  b.disabled=false;
@@ -537,9 +540,9 @@ let starting=false;
 async function start(){
  if(booted||starting)return;starting=true;
  $('#auth').hidden=true;$('#loading').hidden=false;
- try{await loadAll()}catch(err){console.error(err);starting=false;$('#loading').innerHTML='<p>Kunne ikke hente dine data. Tjek forbindelsen og genindlæs siden.</p>';return}
+ try{const u=await sb.auth.getUser();if(u.data?.user)user=u.data.user;await loadAll()}catch(err){console.error(err);starting=false;$('#loading').innerHTML='<p>Kunne ikke hente dine data. Tjek forbindelsen og genindlæs siden.</p>';return}
  starting=false;booted=true;draft=null;document.body.classList.remove('out');
- $('#loading').hidden=true;$('#app').hidden=false;$('#who').textContent=user?'Logget ind som '+user.email:'';
+ $('#loading').hidden=true;$('#app').hidden=false;$('#who').textContent=user?'Logget ind som '+user.email:'';setBrand(user?.user_metadata?.name||'');
  if(/access_token|error_description/.test(location.hash))history.replaceState(null,'',APP_URL+'#oversigt');
  render();
 }

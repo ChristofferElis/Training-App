@@ -1,6 +1,6 @@
 {
-  "name": "Chris progress log",
-  "short_name": "Progress log",
+  "name": "Progress Log",
+  "short_name": "Progress Log",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

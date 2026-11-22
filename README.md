@@ -1,4 +1,4 @@
-# Chris progress log
+# Progress Log
 
 Træningsapp til programmer, logning af sæt, progression pr. øvelse og kropsvægt.
 
